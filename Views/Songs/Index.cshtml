@@ -1,0 +1,12 @@
+﻿@model Project_Task.Genius.GeniusResponse
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    @foreach (var hit in Model.Response.Hits)
+    {
+        <p>@hit.Result.Title - @hit.Result.Artist.Name</p>
+        <a href="https://genius.com@(hit.Result.Path)">Lyrics</a>
+    }
+</div>
