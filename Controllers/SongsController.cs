@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Project_Task.DTO;
 using Project_Task.Interfaces;
 using Project_Task.Models;
 using Project_Task.Services;
@@ -21,6 +22,14 @@ public class SongsController : Controller
     {
         return View("Index", await _songsService.GetSongs("linkinpark"));
     }
+
+    [HttpPost]
+    public async Task<JsonResult> SearchSongs([FromBody] SearchDTO search)
+    {
+        // Process the data
+        return Json(await _songsService.GetSongs(search.Search));
+    }
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

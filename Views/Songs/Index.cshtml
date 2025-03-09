@@ -4,9 +4,53 @@
 }
 
 <div class="text-center">
-    @foreach (var hit in Model.Response.Hits)
-    {
-        <p>@hit.Result.Title - @hit.Result.Artist.Name</p>
-        <a href="https://genius.com@(hit.Result.Path)">Lyrics</a>
-    }
+    <form>
+        <input type="text" id="search" />
+        <button id="searchButton">Search</button>
+    </form>
+    <div id="songs">
+        @foreach (var hit in Model.Response.Hits)
+        {
+            <div class="song">
+                <p>@hit.Result.Title - @hit.Result.Artist.Name</p>
+                <a href="https://genius.com@(hit.Result.Path)">Lyrics</a>
+            </div>
+        }
+    </div>
 </div>
+<script>
+        document.querySelector("#searchButton").addEventListener("click", async (e) => {
+            e.preventDefault();
+            const search = document.querySelector("#search").value;
+
+            try {
+
+                const response = await fetch('/Songs/SearchSongs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ search })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    const songs = document.querySelector("#songs");
+                    songs.innerHTML = "";
+                    console.log(result);
+
+                    result.response.hits.forEach(song => {
+                        const songElement = document.createElement("div");
+                        songElement.innerHTML = `
+                            <p>${song.result.title} - ${song.result.primary_artist.name}</p>
+                            <a href="https://genius.com${song.result.path}">Lyrics</a>
+                        `;
+                        songs.appendChild(songElement);
+                    });
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong!");
+            }
+        });
+</script>
