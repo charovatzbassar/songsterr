@@ -1,8 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using Project_Task.Data;
 using Project_Task.Interfaces;
 using Project_Task.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

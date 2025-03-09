@@ -1,0 +1,40 @@
+@model List<Project_Task.Models.Song>
+@{
+    ViewData["Title"] = "Favourites Page";
+}
+
+<div class="text-center">
+    <div id="songs">
+        @foreach (var hit in Model)
+        {
+            <div class="song p-2 border d-flex justify-content-between">
+                <p>@hit.Title - @hit.Artist <a href="https://genius.com@(hit.Lyrics)" target="_blank">Lyrics</a></p>
+                <button class="btn btn-danger like" 
+                    onclick='removeFromFavourites(@Json.Serialize(hit.Id), @Json.Serialize(hit.Title), @Json.Serialize(hit.Artist), @Json.Serialize(hit.Lyrics))'>
+                    &#9825;
+                </button>            
+            </div>
+        }
+    </div>
+</div>
+<script>
+    const removeFromFavourites = async (id, title, artist, lyrics) => {
+        try {
+            const response = await fetch('/Favourites/RemoveFromFavourites', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, title, artist, lyrics })
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                alert("Song removed from favourites!");
+            } 
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong!");
+        }
+    }
+</script>

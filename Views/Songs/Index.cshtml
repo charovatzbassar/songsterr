@@ -4,53 +4,83 @@
 }
 
 <div class="text-center">
-    <form>
+    <form class="pb-2">
         <input type="text" id="search" />
         <button id="searchButton">Search</button>
     </form>
     <div id="songs">
         @foreach (var hit in Model.Response.Hits)
         {
-            <div class="song">
-                <p>@hit.Result.Title - @hit.Result.Artist.Name</p>
-                <a href="https://genius.com@(hit.Result.Path)">Lyrics</a>
+            <div class="song p-2 border d-flex justify-content-between">
+                <p>@hit.Result.Title - @hit.Result.Artist.Name <a href="https://genius.com@(hit.Result.Path)" target="_blank">Lyrics</a></p>
+                <button class="btn btn-danger like" 
+                    onclick='addToFavourites(@Json.Serialize(hit.Result.Title), @Json.Serialize(hit.Result.Artist.Name), @Json.Serialize(hit.Result.Path))'>
+                    &#9825;
+                </button>
             </div>
         }
     </div>
 </div>
 <script>
+        const addToFavourites = async (title, artist, lyrics) => {
+            try {
+                const response = await fetch('/Favourites/AddToFavourites', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, artist, lyrics })
+                });
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    alert("Song added to favourites!");
+                } else {
+                    alert("Song already in favourites!");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong!");
+            }
+        }
+
         document.querySelector("#searchButton").addEventListener("click", async (e) => {
             e.preventDefault();
-            const search = document.querySelector("#search").value;
+            const search = document.querySelector("#search");
 
             try {
-
                 const response = await fetch('/Songs/SearchSongs', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ search })
+                    body: JSON.stringify({ search: search.value })
                 });
                 const result = await response.json();
 
                 if (response.ok) {
                     const songs = document.querySelector("#songs");
                     songs.innerHTML = "";
-                    console.log(result);
 
                     result.response.hits.forEach(song => {
                         const songElement = document.createElement("div");
+                        songElement.classList.add("song", "p-2", "border", "d-flex", "justify-content-between");
                         songElement.innerHTML = `
-                            <p>${song.result.title} - ${song.result.primary_artist.name}</p>
-                            <a href="https://genius.com${song.result.path}">Lyrics</a>
+                            <p>${song.result.title} - ${song.result.primary_artist.name} <a href="https://genius.com${song.result.path}" target="_blank">Lyrics</a></p>
+                            <button class="btn btn-danger">&#9825;</button>
                         `;
+                        songElement.querySelector("button").addEventListener("click", () => {
+                            addToFavourites(song.result.title, song.result.primary_artist.name, song.result.path);
+                        });
                         songs.appendChild(songElement);
                     });
+                    search.value = "";
                 }
             } catch (error) {
                 console.error("Error:", error);
                 alert("Something went wrong!");
             }
         });
+
+
 </script>

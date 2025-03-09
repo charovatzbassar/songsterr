@@ -20,7 +20,7 @@ public class SongsController : Controller
 
     public async Task<IActionResult> Index()
     {
-        return View("Index", await _songsService.GetSongs("linkinpark"));
+        return View("Index", await _songsService.GetSongs("a"));
     }
 
     [HttpPost]
